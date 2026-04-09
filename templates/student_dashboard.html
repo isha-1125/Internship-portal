@@ -1,0 +1,354 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile & Dashboard</title>
+
+<link rel="stylesheet" href="{% static 'profile.css' %}">
+<style>
+
+body{
+margin:0;
+padding:0;
+font-family:'Poppins', sans-serif;
+background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+color:#e0e0ff;
+}
+
+/* HEADER */
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 30px;
+background: rgba(255,255,255,0.05);
+backdrop-filter: blur(10px);
+border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+.logo a{
+color:#fff;
+text-decoration:none;
+font-size:22px;
+font-weight:bold;
+}
+
+nav ul{
+list-style:none;
+display:flex;
+}
+
+nav ul li{
+margin-left:20px;
+}
+
+nav ul li a{
+color:#ddd;
+text-decoration:none;
+transition:0.3s;
+}
+
+nav ul li a:hover{
+color:#fff;
+}
+
+/* MAIN */
+main{
+display:flex;
+justify-content:center;
+padding:40px;
+}
+
+/* GLASS CARD */
+.dashboard-container1{
+display:flex;
+width:85%;
+border-radius:20px;
+padding:25px;
+background: rgba(255,255,255,0.05);
+backdrop-filter: blur(15px);
+border:1px solid rgba(255,255,255,0.1);
+box-shadow:0 0 25px rgba(0,0,0,0.5);
+}
+
+/* PROFILE */
+.profile-section{
+width:35%;
+text-align:center;
+border-right:1px solid rgba(255,255,255,0.1);
+padding-right:20px;
+}
+
+.dashboard-section{
+width:65%;
+padding-left:20px;
+}
+
+.profile-pic img{
+width:120px;
+height:120px;
+border-radius:50%;
+object-fit:cover;
+border:3px solid #6d28d9;
+}
+
+.profile-details p{
+margin:8px 0;
+color:#cfcfff;
+}
+
+/* BUTTONS */
+.edit-btn, .start-btn{
+display:inline-block;
+margin-top:10px;
+padding:8px 15px;
+background:#6d28d9;
+color:white;
+text-decoration:none;
+border-radius:6px;
+transition:0.3s;
+}
+
+.edit-btn:hover, .start-btn:hover{
+background:#5b21b6;
+box-shadow:0 0 10px rgba(109,40,217,0.6);
+}
+
+.quit-btn{
+background:#dc3545;
+color:white;
+border:none;
+padding:6px 12px;
+border-radius:5px;
+cursor:pointer;
+}
+
+/* TABLE */
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+}
+
+th{
+background:#6d28d9;
+color:white;
+padding:10px;
+}
+
+td{
+padding:10px;
+border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+/* STATUS BADGES */
+.status{
+padding:5px 10px;
+border-radius:20px;
+font-size:12px;
+}
+
+.review{
+background:#fff3cd;
+color:#856404;
+}
+
+.shortlisted{
+background:#d4edda;
+color:#155724;
+}
+
+.rejected{
+background:#f8d7da;
+color:#721c24;
+}
+
+/* TEXT STATES */
+.waiting{
+color:#ffcc00;
+font-size:13px;
+}
+
+.rejected-text{
+color:#ff4d4d;
+font-size:13px;
+}
+
+/* FOOTER */
+footer{
+text-align:center;
+padding:15px;
+margin-top:30px;
+background: rgba(255,255,255,0.05);
+border-top:1px solid rgba(255,255,255,0.1);
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+<a href="{% url 'home' %}">InternAcharya</a>
+</div>
+
+<nav>
+<ul>
+<li><a href="{% url 'home' %}">Home</a></li>
+<li><a href="{% url 'list' %}">Internships</a></li>
+<li><a href="{% url 'logout' %}">Logout</a></li>
+</ul>
+</nav>
+
+</header>
+
+<main>
+
+<div class="dashboard-container1">
+
+<!-- PROFILE SECTION -->
+
+<div class="profile-section">
+
+<h2>{{ request.user.username }}</h2>
+
+<form action="{% url 'student_dashboard' %}" method="post" enctype="multipart/form-data">
+{% csrf_token %}
+
+<div class="profile-pic">
+<label for="profilePic">
+<img src="{{ profile.profile_picture.url|default:'https://via.placeholder.com/120' }}">
+</label>
+
+<input type="file" name="profile_picture" id="profilePic" style="display:none" onchange="this.form.submit()">
+</div>
+
+</form>
+
+<div class="profile-details">
+
+<p><b>Full Name:</b> {{ profile.full_name|default:"Not provided" }}</p>
+
+<p><b>Email:</b> {{ request.user.email }}</p>
+
+<p><b>Phone:</b> {{ profile.contact_number|default:"Not provided" }}</p>
+
+<p><b>Skills:</b> {{ profile.skills|default:"Not provided" }}</p>
+
+</div>
+
+<a href="{% url 'pro' %}" class="edit-btn">Edit Profile</a>
+
+</div>
+
+
+<!-- DASHBOARD SECTION -->
+
+<div class="dashboard-section">
+
+<h2>My Applications</h2>
+
+{% if applications %}
+
+<div class="dashboard-container">
+
+<table>
+
+<tr>
+<th>Role</th>
+<th>Status</th>
+<th>Applied On</th>
+<th>Action</th>
+</tr>
+
+{% for application in applications %}
+
+<tr>
+
+<td>{{ application.internship_role }}</td>
+
+<td>
+    {% if application.status == "Under Review" %}
+        <span class="status review">Under Review</span>
+
+    {% elif application.status == "Shortlisted" %}
+        <span class="status shortlisted">Shortlisted</span>
+
+    {% elif application.status == "Rejected" %}
+        <span class="status rejected">Rejected</span>
+
+    {% endif %}
+</td>
+
+<td>{{ application.applied_on }}</td>
+
+<td>
+
+{% if application.status == "Under Review" %}
+
+<form action="{% url 'quit_application' application.id %}" method="post" style="display:inline;">
+{% csrf_token %}
+<button class="quit-btn">Quit</button>
+</form>
+
+<span class="waiting">Waiting</span>
+
+{% elif application.status == "Shortlisted" %}
+
+<a href="{% url 'start_assessment' application.id %}" class="start-btn">
+Start Test
+</a>
+
+{% elif application.status == "Rejected" %}
+
+<form action="{% url 'quit_application' application.id %}" method="post" style="display:inline;">
+{% csrf_token %}
+<button class="quit-btn" onclick="return confirm('Delete this application?')">
+Delete
+</button>
+</form>
+
+{% endif %}
+{# ✅ Certificate button: test pass hone par dikhe #}
+    {% if application.test_taken and application.passed %}
+        <a href="{% url 'certificate_view' application.id %}" class="start-btn" style="background: #007bff; margin-left:5px;">Download Certificate</a>
+    {% endif %}
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+{% else %}
+
+<p>You have not applied for any internship.</p>
+
+{% endif %}
+
+<br>
+
+<a href="{% url 'list' %}" class="edit-btn">Apply Internship</a>
+
+</div>
+
+</div>
+
+</main>
+
+<footer>
+
+<p>© 2026 Internship Portal</p>
+
+</footer>
+
+</body>
+</html>

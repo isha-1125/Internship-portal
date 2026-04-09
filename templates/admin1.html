@@ -1,0 +1,340 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+
+<style>
+
+/* RESET */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+/* BODY */
+body{
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color:#e0e0ff;
+}
+
+/* HEADER */
+header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 100px;
+    background: rgba(15,12,41,0.9);
+    backdrop-filter:blur(10px);
+}
+
+.logo a{
+    color:#e0e0ff;
+    font-size:1.5rem;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+/* STATS */
+.stats-container{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:20px;
+    padding:20px;
+}
+
+.card{
+    background: rgba(255,255,255,0.05);
+    backdrop-filter:blur(15px);
+    padding:20px;
+    border-radius:20px;
+    text-align:center;
+    width:170px;
+    box-shadow:0 0 30px rgba(0,0,0,0.6);
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+/* MAIN */
+.admin-container{
+    width:95%;
+    max-width:1400px;
+    margin:auto;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter:blur(15px);
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 0 40px rgba(0,0,0,0.7);
+}
+
+/* BUTTON */
+.btn{
+    padding:7px 14px;
+    border-radius:6px;
+    background:#6d28d9;
+    color:white;
+    text-decoration:none;
+    border:none;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn:hover{
+    background:#5b21b6;
+    box-shadow:0 0 12px rgba(109,40,217,0.6);
+}
+
+.btn-green{ background:#22c55e; }
+.btn-red{ background:#ef4444; }
+
+/* FILTER BUTTONS */
+.filter-buttons{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin:15px 0;
+    flex-wrap:wrap;
+}
+
+/* FORM */
+form{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin:20px 0;
+}
+
+form input{
+    padding:10px;
+    width:200px;
+    border-radius:6px;
+    border:2px solid #555;
+    background:#1a1a2e;
+    color:#fff;
+}
+
+form select{
+    padding:10px;
+    width:150px;
+    border-radius:6px;
+    border:2px solid #555;
+    background:#1a1a2e;
+    color:#fff;
+}
+
+form input:focus{
+    border-color:#a855f7;
+    box-shadow:0 0 8px rgba(168,85,247,0.6);
+}
+
+/* TABLE */
+.table-wrapper{
+    width:100%;
+    overflow-x:auto;
+}
+
+.table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.table th{
+    background:#6d28d9;
+    padding:12px;
+}
+
+.table td{
+    background: rgba(255,255,255,0.03);
+    padding:12px;
+    text-align:center;
+}
+
+.table th, .table td{
+    white-space:nowrap;
+}
+
+/* AI BOX */
+.ai-box{
+    background: rgba(255,255,255,0.05);
+    backdrop-filter:blur(15px);
+    padding:20px;
+    border-radius:20px;
+    margin-bottom:20px;
+    text-align:center;
+    box-shadow:0 0 30px rgba(0,0,0,0.6);
+}
+
+progress{
+    width:120px;
+}
+
+/* FOOTER */
+footer{
+    text-align:center;
+    padding:15px;
+    background: rgba(15,12,41,0.9);
+    margin-top:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- STATS -->
+<div class="stats-container">
+    <div class="card"><h3>Total</h3><p>{{ total_applications }}</p></div>
+    <div class="card"><h3>Review</h3><p>{{ under_review }}</p></div>
+    <div class="card"><h3>Shortlisted</h3><p>{{ shortlisted }}</p></div>
+    <div class="card"><h3>Rejected</h3><p>{{ rejected }}</p></div>
+    <div class="card"><h3>Passed</h3><p>{{ passed_count }}</p></div>
+    <div class="card"><h3>Failed</h3><p>{{ failed_count }}</p></div>
+</div>
+
+<!-- HEADER -->
+<header>
+    <div class="logo"><a href="{% url 'home' %}">InternAcharya</a></div>
+    <nav>
+        <a href="{% url 'home' %}" style="margin-right:20px; color:#ddd;">Home</a>
+        <a href="{% url 'ulogout' %}" style="color:#ddd;">Logout</a>
+    </nav>
+</header>
+
+<!-- MAIN -->
+<div class="admin-container">
+
+    <h2 style="text-align:center;">Admin Panel</h2>
+
+    <div style="text-align:center; margin:15px 0;">
+        <a href="{% url 'add_internship' %}" class="btn">+ Add Internship</a>
+    </div>
+    <h3 style="margin-top:30px;">Posted Internships</h3>
+
+<div class="table-wrapper">
+<table class="table">
+<tr>
+    <th>Company</th>
+    <th>Role</th>
+    <th>Action</th>
+</tr>
+
+{% for i in internships %}
+<tr>
+    <td>{{ i.company_name }}</td>
+    <td>{{ i.internship_title }}</td>
+    <td>
+        <a href="{% url 'edit_internship' i.id %}" class="btn">Edit</a>
+        <a href="{% url 'delete_internship' i.id %}" class="btn-red btn">Delete</a>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="3">No internships posted</td>
+</tr>
+{% endfor %}
+
+</table>
+</div>
+
+    <!-- AI SCORE -->
+    <div class="ai-box">
+        <h3>🤖 AI Resume Score</h3>
+        <div style="display:flex; justify-content:center; gap:30px; flex-wrap:wrap;">
+            <div><p>Skills</p><progress value="70" max="100"></progress></div>
+            <div><p>Projects</p><progress value="80" max="100"></progress></div>
+            <div><p>Experience</p><progress value="50" max="100"></progress></div>
+        </div>
+    </div>
+
+    <h3>Internship Applications</h3>
+
+    <!-- FILTER BUTTONS -->
+    <div class="filter-buttons">
+        <a href="{% url 'admin_panel' %}" class="btn">All</a>
+        <a href="?status=Under Review" class="btn">Review</a>
+        <a href="?status=Shortlisted" class="btn-green btn">Shortlisted</a>
+        <a href="?status=Rejected" class="btn-red btn">Rejected</a>
+    </div>
+
+    <!-- SEARCH -->
+    <form method="GET">
+        <input type="text" name="search" placeholder="Search user...">
+        <select name="status">
+            <option value="">All</option>
+            <option value="Under Review">Review</option>
+            <option value="Shortlisted">Shortlisted</option>
+            <option value="Rejected">Rejected</option>
+        </select>
+        <button class="btn">Filter</button>
+    </form>
+
+    <!-- TABLE -->
+    <div class="table-wrapper">
+    <table class="table">
+        <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Resume</th>
+            <th>Status</th>
+            <th>Score</th>
+            <th>Result</th>
+            <th>AI Score</th>
+            <th>Action</th>
+        </tr>
+
+        {% for app in applications %}
+        <tr>
+            <td>{{ app.user.username }}</td>
+            <td>{{ app.internship_role }}</td>
+
+            <td>
+                {% if app.resume %}
+                <a class="btn" href="{{ app.resume.url }}">Download</a>
+                {% endif %}
+            </td>
+
+            <td>{{ app.status }}</td>
+            <td>{{ app.score|default:"-" }}</td>
+
+            <td>
+                {% if app.result_status == "Pass" %}
+                <span style="color:lightgreen;">Pass</span>
+                {% elif app.result_status == "Fail" %}
+                <span style="color:#ff6b6b;">Fail</span>
+                {% else %}
+                Not Attempted
+                {% endif %}
+            </td>
+
+            <td style="color:#00ffcc; font-weight:bold;">
+                {{ app.ai_score }}/100
+            </td>
+
+            <td>
+                <a class="btn" href="{% url 'view_application' app.id %}">View</a>
+                <a class="btn-green btn" href="{% url 'update_status' app.id 'Shortlisted' %}">✔</a>
+                <a class="btn-red btn" href="{% url 'update_status' app.id 'Rejected' %}">✖</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    </div>
+
+</div>
+
+<footer>
+    <p>© 2025 InternAcharya</p>
+</footer>
+
+</body>
+</html>

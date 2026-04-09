@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Certificate</title>
+
+<style>
+body{
+    background:#f0f2f5;
+    font-family:'Segoe UI',sans-serif;
+}
+
+.certificate-box{
+    width:900px;
+    margin:40px auto;
+    padding:50px;
+    background:white;
+    border:12px solid #0d6efd; /* Purple color */
+    text-align:center;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
+    position:relative;
+}
+
+h1{
+    font-size:42px;
+    color:#0d6efd;
+    margin-bottom:10px;
+    letter-spacing:2px;
+}
+
+.sub-title{
+    font-size:18px;
+    color:#555;
+    margin-bottom:30px;
+}
+
+.name{
+    font-size:34px;
+    font-weight:bold;
+    color:#222;
+    margin:20px 0;
+}
+
+.text{
+    font-size:20px;
+    color:#444;
+    margin:15px 0;
+}
+
+.role{
+    font-size:26px;
+    font-weight:bold;
+    color:#0d6efd;
+    margin:20px 0;
+}
+
+.percentage{
+    font-size:22px;
+    margin-top:20px;
+    color:#28a745;
+    font-weight:bold;
+}
+
+.footer{
+    margin-top:50px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.date{
+    font-size:16px;
+}
+
+.signature{
+    text-align:right;
+}
+
+.signature-line{
+    width:200px;
+    border-top:2px solid black;
+    margin-left:auto;
+}
+
+.brand{
+    position:absolute;
+    bottom:15px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:14px;
+    color:#777;
+}
+
+.download-btn{
+    display:block;
+    width:200px;
+    margin:20px auto;
+    padding:10px;
+    background:#0d6efd;
+    color:white;
+    text-decoration:none;
+    border-radius:5px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="certificate-box">
+
+<h1>Certificate of Achievement</h1>
+
+<p class="sub-title">This is proudly presented to</p>
+
+<div class="name">
+    {{ full_name }}
+</div>
+
+<p class="text">for successfully clearing the assessment for the role of</p>
+
+<div class="role">
+    {{ role_name }}
+</div>
+
+<p class="text">with outstanding performance</p>
+
+<div class="percentage">
+    {{ percentage }}%
+</div>
+
+<div class="footer">
+    <div class="date">
+        Date: {{ today|date:"d M Y" }}
+    </div>
+
+    <div class="signature">
+        <div class="signature-line"></div>
+        <p>Authorized Signature</p>
+    </div>
+</div>
+
+<div class="brand">
+    Powered by InternAcharya
+</div>
+
+</div>
+
+<!-- Optional Print Button -->
+<button onclick="window.print()" class="download-btn">Download / Print</button>
+
+</body>
+</html>

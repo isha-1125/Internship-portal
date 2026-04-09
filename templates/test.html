@@ -1,0 +1,358 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assessment Test</title>
+
+<style>
+body{
+    font-family:'Poppins',sans-serif;
+    margin:0;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color:#e0e0ff;
+    transition:0.3s;
+}
+
+body.light{
+    background:#f3f4f6;
+    color:#1f2937;
+}
+
+#toggle{
+    position:fixed;
+    top:20px;
+    right:20px;
+    background:#6d28d9;
+    color:#fff;
+    border:none;
+    padding:8px 15px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.main{ display:flex; gap:20px; padding:20px; }
+.container{ width:75%; }
+
+.question-box{
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(12px);
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+}
+
+.option{ display:block; margin:6px 0; }
+
+.code-editor{
+    width:100%;
+    height:250px;
+    background:#020617;
+    color:#00ff9c;
+    border:none;
+    border-radius:10px;
+    padding:10px;
+    font-family: monospace;
+    font-size:14px;
+    resize: vertical;
+}
+
+.lang-select{
+    margin-top:10px;
+    padding:10px;
+    border:2px solid #555;
+    border-radius:6px;
+    background: rgba(255,255,255,0.05);
+    color:#fff;
+}
+
+.lang-select option{
+    background:#1f1f2e;
+}
+
+.run-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    background:#6d28d9;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+.run-btn:hover{ background:#5b21b6; }
+
+.submit-btn{
+    margin-top:20px;
+    padding:12px 30px;
+    background:#22c55e;
+    border:none;
+    border-radius:20px;
+    cursor:pointer;
+}
+.submit-btn:hover{ background:#16a34a; }
+
+.output-box{
+    margin-top:10px;
+    padding:10px;
+    background:#020617;
+    color:#fff;
+    border-radius:6px;
+    white-space: pre-wrap;
+}
+
+.side-panel{
+    width:20%;
+    background: rgba(255,255,255,0.05);
+    padding:15px;
+    border-radius:12px;
+    height:fit-content;
+}
+
+.qnum{
+    display:inline-block;
+    width:35px;
+    height:35px;
+    line-height:35px;
+    text-align:center;
+    margin:5px;
+    border-radius:6px;
+    background:#6d28d9;
+    opacity:0.4;
+    color:#fff;
+    text-decoration:none;
+}
+.qnum.answered{
+    opacity:1;
+}
+
+#timer{
+    font-weight:bold;
+    background: rgba(0,0,0,0.3);
+    padding:5px 10px;
+    border-radius:6px;
+    display:inline-block;
+    margin-bottom:20px;
+}
+</style>
+</head>
+
+<body>
+
+<button id="toggle">Toggle Mode</button>
+
+<div class="main">
+
+<div class="container">
+
+<h2>Assessment Test</h2>
+<div id="timer"></div>
+
+<form method="POST" action="{% url 'submit_test' %}" id="assessmentForm">
+{% csrf_token %}
+<input type="hidden" name="application_id" value="{{ application.id }}">
+
+<!-- MCQ -->
+{% for q in mcqs %}
+<div class="question-box" id="q{{ forloop.counter }}">
+<p><b>{{ forloop.counter }}. {{ q.question }}</b></p>
+
+<label class="option"><input type="radio" name="{{ q.id }}" value="{{ q.option1 }}"> {{ q.option1 }}</label>
+<label class="option"><input type="radio" name="{{ q.id }}" value="{{ q.option2 }}"> {{ q.option2 }}</label>
+<label class="option"><input type="radio" name="{{ q.id }}" value="{{ q.option3 }}"> {{ q.option3 }}</label>
+<label class="option"><input type="radio" name="{{ q.id }}" value="{{ q.option4 }}"> {{ q.option4 }}</label>
+
+</div>
+{% endfor %}
+
+<!-- CODING -->
+{% for q in codings %}
+{% with qnum=forloop.counter|add:10 %}
+<div class="question-box" id="q{{ qnum }}">
+
+<p><b>{{ qnum }}. {{ q.question }}</b></p>
+
+<select class="lang-select" data-qid="{{ q.id }}">
+    <option value="python">Python</option>
+    <option value="cpp">C++</option>
+    <option value="java">Java</option>
+</select>
+
+<textarea 
+name="code_{{ q.id }}" 
+id="code_{{ q.id }}" 
+class="code-editor"
+data-python="{{ q.starter_code_python|escapejs }}"
+data-cpp="{{ q.starter_code_cpp|escapejs }}"
+data-java="{{ q.starter_code_java|escapejs }}"
+>{{ q.starter_code_python|escapejs }}</textarea>
+
+<button type="button" class="run-btn" data-qid="{{ q.id }}">Run</button>
+
+<div id="output_{{ q.id }}" class="output-box"></div>
+
+<input type="hidden" id="edited_{{ q.id }}" value="false">
+
+</div>
+{% endwith %}
+{% endfor %}
+
+<button class="submit-btn">Submit</button>
+</form>
+</div>
+
+<!-- SIDE PANEL -->
+<div class="side-panel">
+<h3>Questions</h3>
+
+{% for i in mcqs %}
+<a href="#q{{ forloop.counter }}">
+<div class="qnum">{{ forloop.counter }}</div>
+</a>
+{% endfor %}
+
+{% for i in codings %}
+{% with qnum=forloop.counter|add:10 %}
+<a href="#q{{ qnum }}">
+<div class="qnum">{{ qnum }}</div>
+</a>
+{% endwith %}
+{% endfor %}
+</div>
+
+</div>
+
+<script>
+// CLEAN ESCAPES
+function cleanCode(str){
+    if(!str) return "";
+    return str
+        .replace(/\\u000D\\u000A/g,"\n")
+        .replace(/\\u000A/g,"\n")
+        .replace(/\\u003C/g,"<")
+        .replace(/\\u003E/g,">")
+        .replace(/\\u003B/g,";")
+        .replace(/\\u003D/g,"=")
+        .replace(/\\u0022/g,'"')
+        .replace(/\\u0027/g,"'")
+        .replace(/\\u0028/g,"(")
+        .replace(/\\u0029/g,")")
+        .replace(/\\u002C/g,",")
+        .replace(/\\u0023/g,"#");
+}
+
+// INITIAL CLEAN CODE FOR TEXTAREAS
+document.querySelectorAll("textarea.code-editor").forEach(area=>{
+    area.value = cleanCode(area.value);
+});
+
+// LANGUAGE SWITCH
+document.querySelectorAll(".lang-select").forEach(select=>{
+    select.addEventListener("change", function(){
+        let qid = this.dataset.qid;
+        let box = document.getElementById("code_"+qid);
+
+        let python = cleanCode(box.dataset.python);
+        let cpp    = cleanCode(box.dataset.cpp);
+        let java   = cleanCode(box.dataset.java);
+
+        if(this.value==="python") box.value = python;
+        if(this.value==="cpp")    box.value = cpp;
+        if(this.value==="java")   box.value = java;
+
+        document.getElementById("edited_"+qid).value="true";
+        markAnswered();
+    });
+});
+
+// RUN CODE
+document.querySelectorAll(".run-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+        let qid = btn.dataset.qid;
+        let code = document.getElementById("code_"+qid).value;
+        let lang = document.querySelector(`.lang-select[data-qid="${qid}"]`).value;
+
+        fetch("{% url 'run_code' %}",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/x-www-form-urlencoded",
+                "X-CSRFToken":"{{ csrf_token }}"
+            },
+            body:`code=${encodeURIComponent(code)}&language=${lang}`
+        })
+        .then(res=>res.json())
+        .then(data=>{
+            document.getElementById("output_"+qid).innerText = data.output;
+        });
+    });
+});
+
+// SIDE PANEL
+function markAnswered(){
+    document.querySelectorAll(".qnum").forEach(btn=>{
+        let num = btn.innerText.trim();
+        let has=false;
+
+        if(document.querySelector(`#q${num} input:checked`)) has=true;
+
+        let textarea=document.querySelector(`#q${num} textarea`);
+        if(textarea){
+            let id=textarea.id.split("_")[1];
+            if(document.getElementById("edited_"+id).value==="true"){
+                has=true;
+            }
+        }
+
+        btn.classList.toggle("answered",has);
+    });
+}
+
+document.querySelectorAll("textarea.code-editor").forEach(a=>{
+    a.addEventListener("input",()=>{
+        let id=a.id.split("_")[1];
+        document.getElementById("edited_"+id).value="true";
+        markAnswered();
+    });
+});
+
+document.querySelectorAll("input[type=radio]").forEach(r=>{
+    r.addEventListener("change",markAnswered);
+});
+
+markAnswered();
+
+// TOGGLE
+document.getElementById("toggle").onclick=()=>{
+    document.body.classList.toggle("light");
+};
+
+// TIMER
+let endTime = localStorage.getItem("endTime");
+if(!endTime){
+    endTime = new Date().getTime() + (30*60*1000);
+    localStorage.setItem("endTime", endTime);
+}
+
+setInterval(()=>{
+    let now = new Date().getTime();
+    let diff = Math.floor((endTime-now)/1000);
+
+    if(diff<=0){
+        alert("Time up!");
+        localStorage.clear();
+        document.getElementById("assessmentForm").submit();
+    }
+
+    let m=Math.floor(diff/60);
+    let s=diff%60;
+    document.getElementById("timer").innerText=`Time Left: ${m}:${s<10?'0'+s:s}`;
+},1000);
+
+// CLEAR TIMER ON SUBMIT
+document.getElementById("assessmentForm").addEventListener("submit", ()=>{
+    localStorage.removeItem("endTime");
+});
+</script>
+
+</body>
+</html>

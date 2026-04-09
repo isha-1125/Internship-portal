@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>update_username</title>
+        <link rel="stylesheet" href="registration.css">
+    </head>
+    <style>
+        /* General Page Styling */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f4f7fc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Form Container */
+.update-form {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    width: 350px;
+    text-align: center;
+}
+
+/* Form Label */
+.form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Input Field */
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: border 0.3s ease;
+}
+
+input:focus {
+    border: 2px solid #007bff;
+    outline: none;
+}
+
+/* Error Message */
+.error-message {
+    display: block;
+    color: #d9534f;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+/* Update Button */
+.update-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.update-btn:hover {
+    background: #0056b3;
+}
+
+/* Back Link */
+.back-link {
+    display: block;
+    margin-top: 15px;
+    text-decoration: none;
+    font-size: 14px;
+    color: #007bff;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: #0056b3;
+}
+
+.back-btn {
+    display: inline-block;
+    text-align: center;
+    margin-top: 90px;
+    padding: 8px;
+    width: 120px;
+    background: #6c757d;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.back-btn:hover {
+    background: #5a6268;
+}
+
+    </style>
+    <body>
+
+<form method="POST">
+    {% csrf_token %}
+    <label>New Username</label>
+    {{ form.username }}
+    <span class="error-message">{{ form.username.errors.0 }}</span>
+
+    <button type="submit">Update Username</button>
+</form>
+
+<a href="{% url 'profile' %}" class="back-btn">← Back to Profile</a>
+
+</body>
+</html>

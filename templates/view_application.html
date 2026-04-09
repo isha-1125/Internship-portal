@@ -1,0 +1,266 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Application Details</title>
+
+<style>
+
+/* BODY */
+body{
+    margin:0;
+    font-family:'Poppins',sans-serif;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color:#e0e0ff;
+}
+
+/* Container */
+.container{
+    width:90%;
+    margin:40px auto;
+}
+
+/* Back Button */
+.back-btn{
+    display:inline-block;
+    margin-bottom:20px;
+    background:#6d28d9;
+    color:white;
+    padding:10px 18px;
+    border-radius:8px;
+    text-decoration:none;
+}
+.back-btn:hover{
+    background:#5b21b6;
+}
+
+/* Card */
+.card{
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(15px);
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 0 40px rgba(0,0,0,0.7);
+    margin-bottom:25px;
+}
+
+/* Grid */
+.grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+    gap:15px;
+}
+
+.info{
+    background: rgba(255,255,255,0.08);
+    padding:12px;
+    border-radius:10px;
+}
+
+/* Button */
+.btn{
+    display:inline-block;
+    background:#6d28d9;
+    color:white;
+    padding:8px 14px;
+    border-radius:6px;
+    text-decoration:none;
+    margin-top:10px;
+}
+.btn:hover{
+    background:#5b21b6;
+}
+
+/* Status */
+.pass{ color:#22c55e; font-weight:bold; }
+.fail{ color:#ef4444; font-weight:bold; }
+.pending{ color:#facc15; font-weight:bold; }
+
+/* TABLE */
+.score-table{
+    width:100%;
+    border-collapse: collapse;
+    margin-top:15px;
+}
+
+.score-table th{
+    background:#6d28d9;
+    padding:12px;
+}
+
+.score-table td{
+    padding:12px;
+    text-align:center;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+/* AI SCORE */
+.ai-score{
+    margin-top:20px;
+    padding:20px;
+    border-radius:15px;
+    background: rgba(255,255,255,0.05);
+    text-align:center;
+}
+
+.ai-value{
+    font-size:32px;
+    font-weight:bold;
+    color:#00ffcc;
+}
+
+/* Progress Bar */
+.progress-bar{
+    width:100%;
+    height:10px;
+    background: rgba(255,255,255,0.1);
+    border-radius:10px;
+    margin:15px 0;
+    overflow:hidden;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg, #a855f7, #6d28d9);
+    border-radius:10px;
+    transition:0.8s ease;
+}
+
+/* Breakdown */
+.item{
+    display:flex;
+    justify-content:space-between;
+    padding:6px 0;
+    font-size:14px;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="{% url 'admin_panel' %}" class="back-btn">← Back</a>
+
+<!-- USER INFO -->
+<div class="card">
+
+<h2>{{ application.full_name }}</h2>
+<p><b>Role:</b> {{ role_name }}</p>
+
+<div class="grid">
+<div class="info"><b>Email:</b><br>{{ application.email }}</div>
+<div class="info"><b>Phone:</b><br>{{ application.phone }}</div>
+<div class="info"><b>Experience:</b><br>{{ application.experience }} yrs</div>
+<div class="info"><b>Skills:</b><br>{{ application.skills }}</div>
+<div class="info"><b>Address:</b><br>{{ application.address }}</div>
+
+<div class="info">
+<b>Status:</b><br>
+{% if application.status == "Shortlisted" %}
+<span class="pass">{{ application.status }}</span>
+{% elif application.status == "Rejected" %}
+<span class="fail">{{ application.status }}</span>
+{% else %}
+<span class="pending">{{ application.status }}</span>
+{% endif %}
+</div>
+</div>
+
+{% if application.resume %}
+<a class="btn" href="{{ application.resume.url }}">Resume</a>
+{% endif %}
+
+<!-- 🤖 AI SCORE -->
+<div class="ai-score">
+
+<h3>AI Resume Score</h3>
+
+<div class="ai-value">
+    {{ application.ai_score|default:0 }}/100
+</div>
+
+<div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+</div>
+
+<!-- hidden score -->
+<span id="scoreValue" style="display:none;">
+    {{ application.ai_score|default:0 }}
+</span>
+
+<div class="item">
+    <span>Skills</span>
+    <span>{{ skills_score }}/30</span>
+</div>
+
+<div class="item">
+    <span>Experience</span>
+    <span>{{ exp_score }}/30</span>
+</div>
+
+<div class="item">
+    <span>Resume</span>
+    <span>{{ resume_score }}/20</span>
+</div>
+
+<div class="item">
+    <span>Tech</span>
+    <span>{{ tech_score }}/20</span>
+</div>
+
+</div>
+
+</div>
+
+<!-- TEST RESULT -->
+<div class="card">
+
+<h3>Test Result</h3>
+
+{% if not application.test_taken %}
+<p class="pending">Not Attempted</p>
+
+{% elif test_result %}
+
+<table class="score-table">
+<tr>
+<th>MCQ</th>
+<th>Coding</th>
+<th>Total</th>
+</tr>
+
+<tr>
+<td>{{ test_result.mcq_score }}/{{ test_result.mcq_total }}</td>
+<td>{{ test_result.coding_score }}/{{ test_result.coding_total }}</td>
+<td>{{ test_result.score }}/{{ test_result.total_questions }}</td>
+</tr>
+
+</table>
+
+{% else %}
+<p>No result</p>
+{% endif %}
+
+</div>
+
+</div>
+
+<!-- ✅ JS FIX (IMPORTANT) -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let score = document.getElementById("scoreValue").innerText.trim();
+    let progress = document.getElementById("progressFill");
+
+    if(score){
+        progress.style.width = score + "%";
+    }
+});
+</script>
+
+</body>
+</html>

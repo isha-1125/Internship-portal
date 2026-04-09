@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Dashboard</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+    color:#e0e0ff;
+    padding:40px;
+}
+
+/* Heading */
+h1{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+/* Grid Layout */
+.dashboard{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+    gap:20px;
+}
+
+/* Cards */
+.card{
+    padding:20px;
+    border-radius:15px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.15);
+    box-shadow:0 0 20px rgba(0,0,0,0.4);
+    text-align:center;
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 0 25px rgba(109,40,217,0.6);
+}
+
+.card h3{
+    color:#a855f7;
+    margin-bottom:10px;
+}
+
+.card p{
+    font-size:20px;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Admin Dashboard</h1>
+
+<div class="dashboard">
+
+<div class="card">
+    <h3>Total Users</h3>
+    <p>{{ total_users }}</p>
+</div>
+
+<div class="card">
+    <h3>Total Internship Posts</h3>
+    <p>{{ total_posts }}</p>
+</div>
+
+<div class="card">
+    <h3>Reported Content</h3>
+    <p>{{ total_reports }}</p>
+</div>
+
+<div class="card">
+    <h3>Total Applications</h3>
+    <p>{{ total_applications }}</p>
+</div>
+
+<div class="card">
+    <h3>Internship Success Rate</h3>
+    <p>{{ success_rate }}%</p>
+</div>
+
+</div>
+
+</body>
+</html>

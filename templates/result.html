@@ -1,0 +1,234 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assessment Result</title>
+
+<style>
+
+/* DEFAULT (DARK MODE) */
+body {
+    font-family: 'Poppins', sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color:#e0e0ff;
+    transition:0.3s;
+}
+
+/* LIGHT MODE */
+body.light-mode {
+    background: #f3f4f6;
+    color:#1f2937;
+}
+
+/* TOGGLE BUTTON */
+#modeToggle {
+    position:absolute;
+    top:20px;
+    right:20px;
+    padding:8px 15px;
+    border:none;
+    border-radius:6px;
+    background:#6d28d9;
+    color:white;
+    cursor:pointer;
+}
+
+/* GLASS CARD */
+.result-box {
+    padding:40px;
+    border-radius:20px;
+    text-align:center;
+    width:420px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(15px);
+    border:1px solid rgba(255,255,255,0.1);
+    box-shadow:0 0 30px rgba(0,0,0,0.6);
+    animation: fadeIn 0.6s ease;
+}
+
+/* LIGHT MODE CARD */
+body.light-mode .result-box {
+    background:#ffffff;
+    color:#1f2937;
+}
+
+/* CIRCLE */
+.circle {
+    width:160px;
+    height:160px;
+    border-radius:50%;
+    margin:20px auto;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:24px;
+    font-weight:bold;
+    color:white;
+    background: conic-gradient(#22c55e 0deg, #1f2937 0deg);
+}
+
+/* MESSAGE */
+.message {
+    font-size:18px;
+    margin:15px 0;
+}
+
+/* BREAKDOWN */
+.breakdown {
+    margin-top:20px;
+    text-align:left;
+    color:#cfcfff;
+}
+
+body.light-mode .breakdown {
+    color:#374151;
+}
+
+.breakdown p {
+    margin:6px 0;
+}
+
+/* BUTTON */
+button {
+    margin-top:20px;
+    padding:12px 25px;
+    border:none;
+    border-radius:8px;
+    background:#6d28d9;
+    color:white;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover {
+    background:#5b21b6;
+    transform: translateY(-2px);
+}
+
+/* FOOT NOTE */
+.note {
+    margin-top:10px;
+    font-size:14px;
+    color:#aaa;
+}
+
+body.light-mode .note {
+    color:#555;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+    from {
+        opacity:0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity:1;
+        transform: translateY(0);
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<button id="modeToggle">Toggle Mode</button>
+
+<div class="result-box">
+
+    <h2>Assessment Result</h2>
+
+    <!-- CIRCLE -->
+    <div class="circle">
+        <span>{{ score }}/{{ total }}</span>
+    </div>
+
+    <!-- MESSAGE -->
+    <p class="message">
+        {% if passed %}
+            🎉 You Passed! Great job 💯
+        {% else %}
+            ❌ You Failed
+            <br><br>
+            <span style="color:orange;">
+                You need at least 7 MCQ and 1 coding correct.
+            </span>
+        {% endif %}
+    </p>
+
+    <!-- BREAKDOWN -->
+    <div class="breakdown">
+        <p><b>Total Score:</b> {{ score }} / {{ total }}</p>
+        <p><b>Percentage:</b> {{ percentage|floatformat:2 }}%</p>
+
+        {% if mcq_total %}
+            <p><b>MCQ:</b> {{ mcq_score }} / {{ mcq_total }}</p>
+        {% endif %}
+
+        {% if coding_total %}
+            <p><b>Coding:</b> {{ coding_score }} / {{ coding_total }}</p>
+        {% endif %}
+    </div>
+
+    <!-- PASS CRITERIA -->
+    <div class="breakdown">
+        <p><b>Pass Criteria:</b></p>
+        <p>✔ Minimum 7 MCQ correct</p>
+        <p>✔ At least 1 Coding question correct</p>
+    </div>
+
+    <a href="{% url 'student_dashboard' %}">
+        <button>Back to Dashboard</button>
+    </a>
+
+    <p class="note">Test submitted successfully ✔</p>
+
+</div>
+
+<script>
+
+// THEME TOGGLE
+const btn = document.getElementById('modeToggle');
+
+let mode = localStorage.getItem('theme') || 'dark';
+if(mode === 'light'){
+    document.body.classList.add('light-mode');
+}
+
+btn.addEventListener('click', ()=>{
+    document.body.classList.toggle('light-mode');
+    let newMode = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+    localStorage.setItem('theme', newMode);
+});
+
+// PROGRESS ANIMATION
+let percentage = Number("{{ percentage|default:'0' }}") || 0;
+let passed = "{{ passed }}" === "True";
+
+let color = passed ? "#22c55e" : "#ef4444";
+
+let circle = document.querySelector(".circle");
+let current = 0;
+
+let interval = setInterval(()=>{
+    if(current >= percentage){
+        clearInterval(interval);
+    } else {
+        current++;
+        circle.style.background =
+            `conic-gradient(${color} ${current*3.6}deg, #1f2937 0deg)`;
+    }
+}, 10);
+
+</script>
+
+</body>
+</html>
