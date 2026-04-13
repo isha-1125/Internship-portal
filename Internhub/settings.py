@@ -13,7 +13,7 @@ environ.Env.read_env(BASE_DIR / ".env")
 # ---------------- SECURITY ----------------
 SECRET_KEY = env("SECRET_KEY", default="django-insecure-temp-key")
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 

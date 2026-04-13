@@ -122,31 +122,24 @@ def pro(request):
 @login_required
 def profile_view(request):
 
-    # 🔥 ADMIN → admin panel
     if request.user.is_superuser:
         return redirect('admin_panel')
 
-    # 🔥 COMPANY → company profile
     if request.user.role == "company":
         return redirect('company_profile')
 
-    # 👇 STUDENT → normal profile
     profile, created = user_profile.objects.get_or_create(user=request.user)
-
-    if created:
-        messages.info(request, "Your profile has been created. Please update your details.")
-
     applications = Application.objects.filter(user=request.user)
 
-    # 📸 Profile picture upload
-    if request.method == 'POST' and 'profile_picture' in request.FILES:
-        profile.profile_picture = request.FILES['profile_picture']
-        profile.save()
-        messages.success(request, "Profile picture updated successfully! Reload the page")
-        return redirect('student_dashboard')
+    # 📸 PROFILE UPLOAD FIX
+    if request.method == 'POST':
+        file = request.FILES.get('profile_picture')
 
-    if not applications:
-        messages.info(request, "You have not applied for any internships yet.")
+        if file:
+            profile.profile_picture = file
+            profile.save()
+            messages.success(request, "Profile picture updated successfully!")
+            return redirect('student_dashboard')
 
     return render(request, 'student_dashboard.html', {
         'profile': profile,
@@ -240,7 +233,20 @@ def start_assessment(request, application_id):
         return redirect('student_dashboard')
 
     # ✅ FIXED LINE
-    domain = ROLE_DOMAIN_MAP.get(application.internship_role, "Web")
+    role = application.internship_role.strip().lower()
+
+    mapping = {
+        'frontend developer': 'Web',
+        'backend developer': 'Python',
+        'full stack developer': 'Web',
+        'software developer': 'Web',
+        'data analyst': 'DS',
+        'ai engineer': 'AI',
+    }
+
+    domain = mapping.get(role, "Web")
+
+    print("ROLE:", role)
     print("DOMAIN:", domain)
 
     mcq_questions = Question.objects.filter(
@@ -282,7 +288,18 @@ def submit_test(request):
         return redirect("student_dashboard")
 
     # 🔁 Role → Domain mapping
-    domain = ROLE_DOMAIN_MAP.get(application.internship_role, "Web")
+    role = application.internship_role.strip().lower()
+
+    mapping = {
+         'frontend developer': 'Web',
+         'backend developer': 'Python',
+         'full stack developer': 'Web',
+         'software developer': 'Web',
+         'data analyst': 'DS',
+         'ai engineer': 'AI',
+    }
+
+    domain = mapping.get(role, "Web")
     # ---------------- MCQ ----------------
     mcqs = Question.objects.filter(
     domain__iexact=domain,

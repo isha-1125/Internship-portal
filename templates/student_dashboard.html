@@ -221,7 +221,13 @@ border-top:1px solid rgba(255,255,255,0.1);
 
 <div class="profile-pic">
 <label for="profilePic">
-<img src="{{ profile.profile_picture.url|default:'https://via.placeholder.com/120' }}">
+
+{% if profile.profile_picture %}
+    <img src="{{ profile.profile_picture.url }}" width="120" height="120">
+{% else %}
+    <img src="https://via.placeholder.com/120" width="120" height="120">
+{% endif %}
+
 </label>
 
 <input type="file" name="profile_picture" id="profilePic" style="display:none" onchange="this.form.submit()">

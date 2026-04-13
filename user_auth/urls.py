@@ -1,6 +1,8 @@
 from django.urls import path
 from user_auth import views
 from .views import update_username, apply_internship
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     # Home / Index
@@ -46,6 +48,10 @@ urlpatterns = [
 
     # Company URLs
     path("company/profile/", views.company_profile_update, name="company_profile"),
-    path("company/dashboard/", views.company_dashboard, name="company_dashboard"),
-]
+    path("company/dashboard/", views.company_dashboard, name="company_dashboard")
+
+   ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 
