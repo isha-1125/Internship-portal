@@ -106,7 +106,9 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 
 EMAIL_HOST_USER = "internacharya@gmail.com"
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+if not EMAIL_HOST_PASSWORD:
+    print("❌ EMAIL_HOST_PASSWORD missing in environment variables")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # ---------------- DEFAULT AUTO FIELD ----------------
