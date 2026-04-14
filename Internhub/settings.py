@@ -99,6 +99,7 @@ AUTH_USER_MODEL = "user_auth.custom_user"
 LOGIN_URL = "/login/"
 
 # ---------------- EMAIL CONFIG ----------------
+
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_USE_TLS = True
