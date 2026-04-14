@@ -3,6 +3,7 @@ from user_auth import views
 from .views import update_username, apply_internship
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     # Home / Index
@@ -48,10 +49,15 @@ urlpatterns = [
 
     # Company URLs
     path("company/profile/", views.company_profile_update, name="company_profile"),
-    path("company/dashboard/", views.company_dashboard, name="company_dashboard")
+    path("company/dashboard/", views.company_dashboard, name="company_dashboard"),
+    # 🔥 PASSWORD RESET URLS
+    path('password-reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
    ]
 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+if settings.DEBUG:
+     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
